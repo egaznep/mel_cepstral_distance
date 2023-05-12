@@ -17,12 +17,8 @@ def get_metrics_wavs(wav_file_1: Path, wav_file_2: Path, *, hop_length: int = 25
 
     Parameters
     ----------
-    wav_file_1 : string
-        path to the first input WAV file
-
-    wav_file_2 : string
-        path to the second input WAV file
-
+    wav_file_1, wav_file_2 : either a Path object, or a tuple (audio, sampling_rate)
+  
     hop_length : int > 0 [scalar]
         specifies the number of audio samples between adjacent Short Term Fourier Transformation-columns, therefore
         plays a role in computing the (mel-)spectograms which are needed to compute the mel-cepstral coefficients
@@ -100,15 +96,19 @@ def get_metrics_wavs(wav_file_1: Path, wav_file_2: Path, *, hop_length: int = 25
     >>>   print("Audio 2 and audio 3 seem to share the same similarity to audio 1.")
     """
 
-  if not wav_file_1.is_file():
-    raise ValueError("Parameter 'wav_file_1': File not found!")
-  if not wav_file_2.is_file():
-    raise ValueError("Parameter 'wav_file_2': File not found!")
+  if type(wav_file_1) is Path:
+    if not wav_file_1.is_file():
+      raise ValueError("Parameter 'wav_file_1': File not found!")
+    if not wav_file_2.is_file():
+      raise ValueError("Parameter 'wav_file_2': File not found!")
 
-  audio_1, sr_1 = load(wav_file_1, sr=None, mono=True, res_type=None,
-                       offset=0.0, duration=None, dtype=np.float32)
-  audio_2, sr_2 = load(wav_file_2, sr=None, mono=True, res_type=None,
-                       offset=0.0, duration=None, dtype=np.float32)
+    audio_1, sr_1 = load(wav_file_1, sr=None, mono=True, res_type=None,
+                        offset=0.0, duration=None, dtype=np.float32)
+    audio_2, sr_2 = load(wav_file_2, sr=None, mono=True, res_type=None,
+                        offset=0.0, duration=None, dtype=np.float32)
+  else:
+    audio_1, sr_1 = wav_file_1
+    audio_2, sr_2 = wav_file_2
 
   if sr_1 != sr_2:
     raise ValueError(
